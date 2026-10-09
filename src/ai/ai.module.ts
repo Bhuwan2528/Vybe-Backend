@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AiService } from './ai.service.js';
-import { AiController } from './ai.controller.js';
+import { AiSearchModule } from './ai-search/ai-search.module.js';
+import { GroqProvider } from './providers/groq.provider.js';
+import { GroqProviderModule } from './providers/groq-provider.module.js';
 
 @Module({
-  providers: [AiService],
-  controllers: [AiController]
+  providers: [GroqProvider],
+  controllers: [],
+  imports: [AiSearchModule, GroqProviderModule]
 })
 export class AiModule {}
