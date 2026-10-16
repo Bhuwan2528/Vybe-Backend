@@ -14,9 +14,6 @@ export class CreateProductVariantDto {
   @IsEnum(ProductSize)
   size: ProductSize;
 
-  @IsEnum(ProductColor)
-  color: ProductColor;
-
   @IsOptional()
   @IsInt()
   @Min(0)

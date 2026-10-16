@@ -3,56 +3,92 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { CreateProductDto } from './dto/createProduct.dto.js';
 import { UpdateProductDto } from './dto/updateProduct.dto.js';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ProductsService {
-    constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-    getAll() {
-        return this.prisma.product.findMany({
-            where: { isActive: true },
-            include: {
-                subCategory: true
-            }
-        });
+  getAll() {
+    return this.prisma.product.findMany({
+      where: { isActive: true },
+      include: {
+        subCategory: true,
+      },
+    });
+  }
+
+
+  async create(data: CreateProductDto) {
+    
+    // 1. check sub category
+    const subCategory = await this.prisma.subCategory.findUnique({
+      where: { id: data.subCategoryId },
+    });
+
+    if (!subCategory || !subCategory.isActive) {
+      throw new NotFoundException('SubCategory not found');
     }
 
-    async create(data: CreateProductDto) {
-        const subCategory = await this.prisma.subCategory.findUnique({
-            where: { id: data.subCategoryId }
-        });
+    //2. seperate products fields form variants
+    const { variants, ...productData } = data;
 
-        if (!subCategory || !subCategory.isActive) {
-            throw new NotFoundException('SubCategory not found');
-        }
+    return this.prisma.$transaction(async (tx) => {
+      //creating product
+      const product = await tx.product.create({
+        data: productData,
+      });
 
-        return this.prisma.product.create({
-            data
-        });
+      // creating stock
+      await tx.productVariant.createMany({
+        data: variants.map((variant) => ({
+          productId: product.id,
+          size: variant.size,
+          stock: variant.stock,
+          sku: `VYBE-${product.id}-${variant.size}-${randomUUID()}`,
+        })),
+      });
+
+      //returning product with variants
+      return tx.product.findUniqueOrThrow({
+        where: {
+          id: product.id,
+        },
+        include: {
+          subCategory: true,
+          variants: true,
+        },
+      });
+    });
+  }
+
+
+  async getById(id: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        subCategory: true,
+        variants: true,
+      },
+    });
+
+    if (!product || !product.isActive) {
+      throw new NotFoundException('Product not found');
     }
 
-    async getById(id: number) {
-        const product = await this.prisma.product.findUnique({
-            where: { id },
-            include: {
-                subCategory: true,
-                variants: true
-            }
-        });
+    return product;
+  }
 
-        if (!product || !product.isActive) {
-            throw new NotFoundException('Product not found');
-        }
-
-        return product;
-    }
 
     async update(id: number, data: UpdateProductDto) {
+
         await this.getById(id);
 
-        if (data.subCategoryId !== undefined) {
+        const { subCategoryId, ...productData } = data;
+
+        if (subCategoryId !== undefined) {
             const subCategory = await this.prisma.subCategory.findUnique({
-                where: { id: data.subCategoryId }
+                where: { id: subCategoryId },
             });
 
             if (!subCategory || !subCategory.isActive) {
@@ -60,23 +96,58 @@ export class ProductsService {
             }
         }
 
+        // Update only provided fields
         return this.prisma.product.update({
             where: { id },
-            data
+            data: {
+                ...productData,
+                ...(subCategoryId !== undefined && {
+                    subCategoryId
+                }),
+            },
         });
     }
 
-    async delete(id: number) {
-        await this.getById(id);
 
-        return this.prisma.product.update({
-            where: { id },
-            data: { isActive: false }
-        });
+  async updateStock(productId: number, stockId: number, stockCount: number) {
+    await this.getById(productId);
+
+    const variant = await this.prisma.productVariant.findFirst({
+      where: {
+        id: stockId,
+        productId,
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException('Product variant not found');
     }
 
-    async getVariants(id: number) {
-        const product = await this.getById(id);
-        return product.variants;
-    }
+    const stock = await this.prisma.productVariant.update({
+      where: {
+        productId,
+        id: stockId,
+      },
+      data: {
+        stock: stockCount,
+      },
+    });
+
+    return stock;
+  }
+  
+
+  async delete(id: number) {
+    await this.getById(id);
+
+    return this.prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+    });
+  }
+
+  async getVariants(id: number) {
+    const product = await this.getById(id);
+    return product.variants;
+  }
 }

@@ -21,7 +21,7 @@ import {
   ProductColor,
   StyleTag,
 } from '@prisma/client';
-import { CreateProductVariantDto } from '../../product-variant/dto/createProductVariant.dto.js';
+import { CreateProductVariantDto } from './createProductVariant.dto.js';
 
 
 export class CreateProductDto {
