@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { GroqProvider } from '../providers/groq.provider.js';
 import Groq from 'groq-sdk';
-import { AI_FILTERS_OUTPUT_SCHEMA, AiFiltersOutputDto } from '../schema/ai-filters-output.schema.js';
 import { AI_SMART_SEARCH_PROMPT } from './prompts/ai-smart-search.prompt.js';
+import { GroqProvider } from '../../providers/groq.provider.js';
+import { AI_FILTERS_OUTPUT_SCHEMA, AiFiltersOutputDto } from '../../schema/ai-filters-output.schema.js';
 
 @Injectable()
 export class AiSearchService {

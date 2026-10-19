@@ -1,25 +1,29 @@
 export interface AiFiltersOutputDto {
   category: string | null;
-  subcategory: string[];
+  subcategories: string[];
+
   colors: string[];
-  style: string | null;
+  styles: string[];
+
   minPrice: number | null;
   maxPrice: number | null;
-  fit: string[];
-  pattern: string[];
-}
 
+  fits: string[];
+  patterns: string[];
+  message: string;
+}
 
 export const AI_FILTERS_OUTPUT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
+
   properties: {
     category: {
       type: ['string', 'null'],
       enum: ['topwear', 'bottomwear', 'footwear', 'accessories', null],
     },
 
-    subcategory: {
+    subcategories: {
       type: 'array',
       items: {
         type: 'string',
@@ -37,12 +41,19 @@ export const AI_FILTERS_OUTPUT_SCHEMA = {
       type: 'array',
       items: {
         type: 'string',
+        // Add your supported canonical color values here.
       },
     },
 
-    style: {
-      type: ['string', 'null'],
-      enum: ['trendy', 'classy', 'streetwear', 'casual', 'minimal', 'aesthetic', null],
+    styles: {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: [
+          'trendy', 'classy', 'streetwear',
+          'casual', 'minimal', 'aesthetic',
+        ],
+      },
     },
 
     minPrice: {
@@ -53,7 +64,7 @@ export const AI_FILTERS_OUTPUT_SCHEMA = {
       type: ['integer', 'null'],
     },
 
-    fit: {
+    fits: {
       type: 'array',
       items: {
         type: 'string',
@@ -64,23 +75,31 @@ export const AI_FILTERS_OUTPUT_SCHEMA = {
       },
     },
 
-    pattern: {
+    patterns: {
       type: 'array',
       items: {
         type: 'string',
-        enum: ['solid', 'printed', 'striped', 'checked', 'graphic', 'minimal'],
+        enum: [
+          'solid', 'printed', 'striped', 'checked', 'graphic',
+        ],
       },
     },
+
+    message: {
+      type: 'string',
+    },
+
   },
 
   required: [
     'category',
-    'subcategory',
+    'subcategories',
     'colors',
-    'style',
+    'styles',
     'minPrice',
     'maxPrice',
-    'fit',
-    'pattern',
+    'fits',
+    'patterns',
+    'message'
   ],
 } as const;
