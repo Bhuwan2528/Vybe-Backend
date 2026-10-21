@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-<<<<<<< HEAD
 enum FitType {
   REGULAR
   RELAXED
@@ -44,17 +43,11 @@ enum ProductSize {
   UK_10
 
   ONE_SIZE
-=======
-enum UserRole {
-  CUSTOMER
-  ADMIN
->>>>>>> 7b9df94 (ai-stylist-feature-completed)
 }
 
 enum ProductColor {
   BLACK
   WHITE
-<<<<<<< HEAD
   GREY
   CHARCOAL
   BROWN
@@ -71,90 +64,19 @@ enum ProductColor {
   YELLOW
   ORANGE
   MULTICOLOR
-=======
-  OFF_WHITE
-  CREAM
-  BEIGE
-  GREY
-  CHARCOAL
-  BROWN
-  TAN
-  NAVY_BLUE
-  ROYAL_BLUE
-  SKY_BLUE
-  DENIM_BLUE
-  OLIVE_GREEN
-  SAGE_GREEN
-  FOREST_GREEN
-  MINT
-  BURGUNDY
-  MAROON
-  RED
-  MUSTARD
-  RUST
-  PINK
-  LAVENDER
-  MULTICOLOR
-  OTHER
-}
-
-enum ProductFit {
-  REGULAR
-  RELAXED
-  OVERSIZED
-  BOXY
-  STRAIGHT
-  TAPERED
-  WIDE_LEG
-}
-
-enum ProductStyle {
-  STREETWEAR
-  MINIMAL
-  CASUAL
-  SMART_CASUAL
-  CLASSIC
-}
-
-enum Pattern {
-  SOLID
-  PRINTED
-  STRIPED
-}
-
-model User {
-  id           Int      @id @default(autoincrement())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         UserRole @default(CUSTOMER)
-  isActive     Boolean  @default(true)
-  refreshToken String
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@map("users")
->>>>>>> 7b9df94 (ai-stylist-feature-completed)
 }
 
 model Category {
   id            Int           @id @default(autoincrement())
   name          String        @unique
   description   String?
-<<<<<<< HEAD
   isActive      Boolean       @default(true)
   subCategories SubCategory[]
-=======
-  subCategories SubCategory[]
-
->>>>>>> 7b9df94 (ai-stylist-feature-completed)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
 
 model SubCategory {
-<<<<<<< HEAD
   id          Int       @id @default(autoincrement())
   name        String
   description String?
@@ -198,47 +120,3 @@ model ProductVariant {
 
   @@unique([productId, size])
 }
-=======
-  id         Int       @id @default(autoincrement())
-  name       String    @unique()
-
-  categoryId Int
-  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-
-  products   Product[]
-
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  @@unique([categoryId, name])
-  @@unique([categoryId])
-  @@index([categoryId])
-}
-
-model Product {
-  id             Int                @id @default(autoincrement())
-  name           String
-  description    String?
-
-  price          Decimal            @db.Decimal(10, 2)
-  imageUrl       String
-  color          ProductColor[]
-  fit            ProductFit[]
-  styleTags      ProductStyle[]     @default([])
-
-  isActive       Boolean            @default(true)
-  pattern        Pattern            @default(SOLID)
-
-  subCategoryId  Int
-  subCategory    SubCategory        @relation(fields: [subCategoryId], references: [id], onDelete: Restrict)
-
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-
-  @@index([subCategoryId, isActive])
-  @@index([color])
-  @@index([price])
-}
-
-
->>>>>>> 7b9df94 (ai-stylist-feature-completed)
