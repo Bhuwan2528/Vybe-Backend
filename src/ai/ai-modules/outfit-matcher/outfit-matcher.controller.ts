@@ -1,6 +1,6 @@
 import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { OutfitMatcherService } from './outfit-matcher.service';
-import { GenerateOutfitDto } from './dto/generate-outfit.dto';
+import { OutfitMatcherService } from './outfit-matcher.service.js';
+import { GenerateOutfitDto } from './dto/generate-outfit.dto.js';
 
 @Controller('outfit-matcher')
 export class OutfitMatcherController {

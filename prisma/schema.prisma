@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -66,6 +65,37 @@ enum ProductColor {
   MULTICOLOR
 }
 
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  password        String
+  address         String?
+  isActive        Boolean   @default(true)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+
+  profile          Profile?
+  savedCollections SavedCollection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Profile {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName   String?
+  lastName    String?
+  phoneNumber String?
+  avatarUrl   String?
+  dateOfBirth DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Category {
   id            Int           @id @default(autoincrement())
   name          String        @unique
@@ -106,17 +136,51 @@ model Product {
   isActive      Boolean          @default(true)
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
+
+  savedCollectionItems SavedCollectionItem[]
 }
 
 model ProductVariant {
-  id        Int          @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   productId Int
-  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   size      ProductSize
-  sku       String       @unique
-  stock     Int          @default(0)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  sku       String      @unique
+  stock     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@unique([productId, size])
+}
+
+model SavedCollection {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  items       SavedCollectionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model SavedCollectionItem {
+  id           Int     @id @default(autoincrement())
+  collectionId Int
+  productId    Int
+  position     Int     @default(0)
+  stylingNote  String?
+
+  collection SavedCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([collectionId, productId])
+  @@index([productId])
+  @@index([collectionId, position])
 }

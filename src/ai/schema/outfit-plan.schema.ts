@@ -1,10 +1,12 @@
+export type OutfitPlanSlot =
+  | 'primary_topwear'
+  | 'layering_topwear'
+  | 'bottomwear'
+  | 'footwear'
+  | 'accessory';
+
 export interface OutfitPlanItemDto {
-  slot:
-    | 'primary_topwear'
-    | 'layering_topwear'
-    | 'bottomwear'
-    | 'footwear'
-    | 'accessory';
+  slot: OutfitPlanSlot
 
   subcategories: string[];
   colors: string[];
